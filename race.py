@@ -8,7 +8,7 @@ def getTournamentData(tournamentcode):
     tournpath = f'{tournamentcode}.json'
     if os.path.exists(tournpath):
         with open(tournpath, 'r') as f:
-            gamelist = f.readlines()
+            gamelist = json.load(f)
         return gamelist
     else:
         headers = {'Accept': 'application/x-ndjson', 'Content-Type': 'application/x-ndjson'}
