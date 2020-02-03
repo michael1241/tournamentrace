@@ -3,6 +3,8 @@
 import json
 import os
 import requests
+from datetime import datetime
+import time
 
 def getTournamentData(tournamentcode):
     tournpath = f'{tournamentcode}.json'
@@ -21,6 +23,13 @@ def getTournamentData(tournamentcode):
         with open(tournpath, 'w') as f:
             json.dump(gamelist, f)
         return gamelist
+
+def getTournamentTimes(tournamentcode):
+    r = requests.get(f'https://lichess.org/api/tournament/{tournamentcode}').json()
+    start = int(time.mktime(time.strptime(r['startsAt'], '%Y-%m-%dT%H:%M:%S.000Z')))*1000
+    duration = r['minutes']
+    end = start + (duration * 60 * 1000) + 1
+    return start, end
 
 #start with JSON
 #generate list for each player with (game end time, result, berserk)
