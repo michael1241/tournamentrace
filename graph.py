@@ -39,7 +39,9 @@ def graphDataFormat(graphdata, starttime, endtime, tournamentcode):
 
     new_format = []
     for col in data.columns:
-        new_format.append(datetime.utcfromtimestamp(col//1000).strftime('%H:%M'))
+        relative_time = endtime - col
+        timeleft = datetime.utcfromtimestamp(relative_time//1000).strftime('%H:%M')
+        new_format.append(timeleft)
     data.columns = new_format
 
     data.to_csv(f'{tournamentcode}_output.csv')
