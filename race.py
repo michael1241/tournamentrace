@@ -88,8 +88,8 @@ def generateRaceData(gamelist):
         game = json.loads(g)
         result = getResult(game)
         berserk = getBerserk(game)
-        appendOrCreate(game['players']['white']['user']['id'], {'time': game['lastMoveAt'], 'result': result['white'], 'berserk': berserk['white']})
-        appendOrCreate(game['players']['black']['user']['id'], {'time': game['lastMoveAt'], 'result': result['black'], 'berserk': berserk['black']})
+        appendOrCreate(game['players']['white']['user']['title'] + " " + game['players']['white']['user']['name'], {'time': game['lastMoveAt'], 'result': result['white'], 'berserk': berserk['white']})
+        appendOrCreate(game['players']['black']['user']['title'] + " " + game['players']['black']['user']['name'], {'time': game['lastMoveAt'], 'result': result['black'], 'berserk': berserk['black']})
 
     graphdata = {}
 

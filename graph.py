@@ -12,7 +12,7 @@ import matplotlib.animation as animation
 
 
 def graphDataFormat(graphdata, starttime, endtime, tournamentcode):
-    resolution = 60000 #every 60 seconds
+    resolution = 10000 #every 10 seconds
 
     timepoints = range(starttime, endtime, resolution)
 
