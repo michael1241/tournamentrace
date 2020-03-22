@@ -54,6 +54,8 @@ def generateRaceData(gamelist):
         return {'white': 'd', 'black': 'd'}
 
     def getBerserk(game):
+        if len(game['moves'].split()) < 14: #at least 7 moves must be played by each player for berserk points to count
+            return {'white': False, 'black': False}
         white = game['players']['white'].get('berserk')
         black = game['players']['black'].get('berserk')
         return {'white': white, 'black': black}
