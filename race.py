@@ -31,6 +31,17 @@ def getTournamentTimes(tournamentcode):
     end = start + (duration * 60 * 1000) + 1
     return start, end
 
+def fixResults(gamelist, removed_players):
+    newgamelist = []
+    for g in gamelist:
+        game = json.loads(g)
+        if game['players']['white']['user']['id'] in removed_players:
+            game['winner'] = 'black'
+        elif game['players']['black']['user']['id'] in removed_players:
+            game['winner'] = 'white'
+        newgamelist.append(game)
+    return newgamelist
+
 #start with JSON
 #generate list for each player with (game end time, result, berserk)
 #convert to player: (time, points) for graphing
@@ -86,8 +97,7 @@ def generateRaceData(gamelist):
                 streak = 0
         return scores
 
-    for g in gamelist:
-        game = json.loads(g)
+    for game in gamelist:
         result = getResult(game)
         berserk = getBerserk(game)
         appendOrCreate(game['players']['white']['user']['title'] + " " + game['players']['white']['user']['name'], {'time': game['lastMoveAt'], 'result': result['white'], 'berserk': berserk['white']})
