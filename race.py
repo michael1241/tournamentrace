@@ -26,10 +26,10 @@ def getTournamentData(tournamentcode):
 
 def getTournamentTimes(tournamentcode):
     r = requests.get(f'https://lichess.org/api/tournament/{tournamentcode}').json()
-    start = int(time.mktime(time.strptime(r['startsAt'], '%Y-%m-%dT%H:%M:%S.000Z')))*1000
+    start = int(time.mktime(time.strptime(r['startsAt'], '%Y-%m-%dT%H:%M:%S.000+02:00')))*1000
     duration = r['minutes']
     end = start + (duration * 60 * 1000) + 1
-    return start, end
+    return start - (60*60*1000), end - (60*60*1000)
 
 def fixResults(gamelist, removed_players):
     newgamelist = []
@@ -71,11 +71,15 @@ def generateRaceData(gamelist):
         black = game['players']['black'].get('berserk')
         return {'white': white, 'black': black}
 
+    def getLength(game):
+        return len(game['moves'].split())
+
     def scoreConvert(results):
         chronoresults = sorted(results, key=lambda results: results['time'])
         scores = []
         score = 0
         streak = 0
+        drawstreak = False
         for game in chronoresults:
             if game['result'] == 'w':
                 score += 2
@@ -85,11 +89,14 @@ def generateRaceData(gamelist):
                     score += 1
                 scores.append((game['time'], score))
                 streak += 1
+                drawstreak = False
             elif game['result'] == 'd':
-                if streak >= 2:
-                    score += 2
-                else:
-                    score += 1
+                if (not drawstreak) or (drawstreak and game['length'] >= 60):
+                    if streak >= 2:
+                        score += 2
+                    else:
+                        score += 1
+                drawstreak = True
                 scores.append((game['time'], score))
                 streak = 0
             elif game['result'] == 'l':
@@ -100,8 +107,9 @@ def generateRaceData(gamelist):
     for game in gamelist:
         result = getResult(game)
         berserk = getBerserk(game)
-        appendOrCreate(game['players']['white']['user']['title'] + " " + game['players']['white']['user']['name'], {'time': game['lastMoveAt'], 'result': result['white'], 'berserk': berserk['white']})
-        appendOrCreate(game['players']['black']['user']['title'] + " " + game['players']['black']['user']['name'], {'time': game['lastMoveAt'], 'result': result['black'], 'berserk': berserk['black']})
+        length = getLength(game)
+        appendOrCreate(game['players']['white']['user']['title'] + " " + game['players']['white']['user']['name'], {'time': game['lastMoveAt'], 'result': result['white'], 'berserk': berserk['white'], 'length': length})
+        appendOrCreate(game['players']['black']['user']['title'] + " " + game['players']['black']['user']['name'], {'time': game['lastMoveAt'], 'result': result['black'], 'berserk': berserk['black'], 'length': length})
 
     graphdata = {}
 
