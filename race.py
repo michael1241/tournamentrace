@@ -91,7 +91,7 @@ def generateRaceData(gamelist):
                 streak += 1
                 drawstreak = False
             elif game['result'] == 'd':
-                if (not drawstreak) or (drawstreak and game['length'] >= 60):
+                if (not drawstreak or game['length'] >= 60) and game['length'] >= 20:
                     if streak >= 2:
                         score += 2
                     else:
