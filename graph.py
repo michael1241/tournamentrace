@@ -20,12 +20,12 @@ def graphDataFormat(graphdata, starttime, endtime, tournamentcode):
 
     for timepoint in timepoints[1:]:
         for player, scores in graphdata.items():
-            try:
+            if scores:
                 if scores[0][0] < timepoint:
                     players[player].append([timepoint, scores.pop(0)[1]]) #append with current timepoint score
                 else:
                     players[player].append([timepoint, players[player][-1][-1]]) #append current timepoint with with last recorded score
-            except IndexError:
+            else:
                 players[player].append([timepoint, players[player][-1][-1]])
 
     frames = []
