@@ -6,30 +6,37 @@ import requests
 from datetime import datetime
 import time
 
-def getTournamentData(tournamentcode):
-    tournpath = f'{tournamentcode}.json'
+def apicall(tournamentcode, calltype):
+    tournpath = f'{tournamentcode}_{calltype}.json'
     if os.path.exists(tournpath):
         with open(tournpath, 'r') as f:
-            gamelist = json.load(f)
-        return gamelist
+            output = json.load(f)
+        return output
     else:
         headers = {'Accept': 'application/x-ndjson', 'Content-Type': 'application/x-ndjson'}
         if os.path.exists('token'):
             with open('token', 'r') as f:
                 tokendata = f.read()[:-2]
             headers['Authorization'] = f'Bearer {tokendata}'
-        r = requests.get(f'https://lichess.org/api/tournament/{tournamentcode}/games', headers=headers)
-        gamelist = r.text.split('\n')[:-1]
+        r = requests.get(f'https://lichess.org/api/tournament/{tournamentcode}/{calltype}', headers=headers)
+        output = r.text.split('\n')[:-1]
         with open(tournpath, 'w') as f:
-            json.dump(gamelist, f)
-        return gamelist
+            json.dump(output, f)
+        return output
 
-def getTournamentTimes(tournamentcode):
+def getTournamentData(tournamentcode):
+    return apicall(tournamentcode, 'games')
+
+def getTournamentInfo(tournamentcode):
     r = requests.get(f'https://lichess.org/api/tournament/{tournamentcode}').json()
     start = int(time.mktime(time.strptime(r['startsAt'], '%Y-%m-%dT%H:%M:%S.000Z')))*1000
     duration = r['minutes']
     end = start + (duration * 60 * 1000)
-    return start, end
+    isteambattle = True if r.get('teamBattle') else False
+    return start, end, isteambattle
+
+def getTeamData(tournamentcode):
+    return apicall(tournamentcode, 'results')
 
 def fixResults(gamelist, removed_players):
     newgamelist = []
@@ -108,8 +115,10 @@ def generateRaceData(gamelist):
         result = getResult(game)
         berserk = getBerserk(game)
         length = getLength(game)
-        appendOrCreate(game['players']['white']['user'].get('title',"") + " " + game['players']['white']['user']['name'], {'time': game['lastMoveAt'], 'result': result['white'], 'berserk': berserk['white'], 'length': length})
-        appendOrCreate(game['players']['black']['user'].get('title',"") + " " + game['players']['black']['user']['name'], {'time': game['lastMoveAt'], 'result': result['black'], 'berserk': berserk['black'], 'length': length})
+        whitetitle = game['players']['white']['user'].get('title')
+        blacktitle = game['players']['black']['user'].get('title')
+        appendOrCreate(whitetitle + " " + game['players']['white']['user']['name'] if whitetitle else game['players']['white']['user']['name'], {'time': game['lastMoveAt'], 'result': result['white'], 'berserk': berserk['white'], 'length': length})
+        appendOrCreate(blacktitle + " " + game['players']['black']['user']['name'] if blacktitle else game['players']['black']['user']['name'], {'time': game['lastMoveAt'], 'result': result['black'], 'berserk': berserk['black'], 'length': length})
 
     graphdata = {}
 

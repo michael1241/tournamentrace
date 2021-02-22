@@ -8,7 +8,11 @@ removed_players = input("Removed players (lowercase):").split()
 
 #get tournament data from lichess
 gamelist = race.getTournamentData(tournamentcode)
-starttime, endtime = race.getTournamentTimes(tournamentcode)
+starttime, endtime, isteambattle = race.getTournamentInfo(tournamentcode)
+
+teamdata = None
+if isteambattle:
+    teamdata = race.getTeamData(tournamentcode)
 
 #reverse results of removed players
 gamelist = race.fixResults(gamelist, removed_players)
@@ -18,4 +22,4 @@ graphdata = race.generateRaceData(gamelist)
 
 
 #generate csv output in flourish format
-graph.graphDataFormat(graphdata, starttime, endtime, tournamentcode)
+graph.graphDataFormat(graphdata, starttime, endtime, tournamentcode, teamdata)
