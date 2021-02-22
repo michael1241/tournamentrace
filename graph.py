@@ -30,13 +30,6 @@ def graphDataFormat(graphdata, starttime, endtime, tournamentcode, teamdata):
 
     frames = []
 
-    if teamdata:
-        teamdict = {}
-        for player in teamdata:
-            player = json.loads(player)
-            title = player.get('title')
-            teamdict[title + " " + player['username'] if title else player['username']] = player['team']
-
     for player, scores in players.items():
         df = pd.DataFrame(scores, columns =['time', 'score'], dtype = int)
         df['player'] = player
@@ -51,5 +44,14 @@ def graphDataFormat(graphdata, starttime, endtime, tournamentcode, teamdata):
         new_format.append(timeleft)
     data.columns = new_format
 
-    data.to_csv(f'{tournamentcode}_output.csv')
+    if teamdata:
+        teamdict = {}
+        for player in teamdata:
+            player = json.loads(player)
+            title = player.get('title')
+            teamdict[title + " " + player['username'] if title else player['username']] = player['team']
+        data = data.reset_index()
+        data.insert(loc=1, column='team', value=data['player'].map(teamdict))
+
+    data.to_csv(f'{tournamentcode}_output.csv', index=False)
 

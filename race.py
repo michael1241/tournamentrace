@@ -32,8 +32,11 @@ def getTournamentInfo(tournamentcode):
     start = int(time.mktime(time.strptime(r['startsAt'], '%Y-%m-%dT%H:%M:%S.000Z')))*1000
     duration = r['minutes']
     end = start + (duration * 60 * 1000)
-    isteambattle = True if r.get('teamBattle') else False
-    return start, end, isteambattle
+    if r.get('teamStanding'):
+        leaders = len(r['teamStanding'][0]['players'])
+    else:
+        leaders = None
+    return start, end, leaders
 
 def getTeamData(tournamentcode):
     return apicall(tournamentcode, 'results')

@@ -8,10 +8,10 @@ removed_players = input("Removed players (lowercase):").split()
 
 #get tournament data from lichess
 gamelist = race.getTournamentData(tournamentcode)
-starttime, endtime, isteambattle = race.getTournamentInfo(tournamentcode)
+starttime, endtime, leaders = race.getTournamentInfo(tournamentcode)
 
 teamdata = None
-if isteambattle:
+if leaders:
     teamdata = race.getTeamData(tournamentcode)
 
 #reverse results of removed players
