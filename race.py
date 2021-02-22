@@ -26,10 +26,10 @@ def getTournamentData(tournamentcode):
 
 def getTournamentTimes(tournamentcode):
     r = requests.get(f'https://lichess.org/api/tournament/{tournamentcode}').json()
-    start = int(time.mktime(time.strptime(r['startsAt'], '%Y-%m-%dT%H:%M:%S.000+02:00')))*1000
+    start = int(time.mktime(time.strptime(r['startsAt'], '%Y-%m-%dT%H:%M:%S.000Z')))*1000
     duration = r['minutes']
-    end = start + (duration * 60 * 1000) + 1
-    return start - (60*60*1000), end - (60*60*1000)
+    end = start + (duration * 60 * 1000)
+    return start, end
 
 def fixResults(gamelist, removed_players):
     newgamelist = []
@@ -64,15 +64,15 @@ def generateRaceData(gamelist):
                 return {'white': 'l', 'black': 'w'}
         return {'white': 'd', 'black': 'd'}
 
+    def getLength(game):
+        return len(game['moves'].split())
+
     def getBerserk(game):
-        if len(game['moves'].split()) < 14: #at least 7 moves must be played by each player for berserk points to count
+        if getLength(game) < 14: #at least 7 moves must be played by each player for berserk points to count
             return {'white': False, 'black': False}
         white = game['players']['white'].get('berserk')
         black = game['players']['black'].get('berserk')
         return {'white': white, 'black': black}
-
-    def getLength(game):
-        return len(game['moves'].split())
 
     def scoreConvert(results):
         chronoresults = sorted(results, key=lambda results: results['time'])
@@ -108,8 +108,8 @@ def generateRaceData(gamelist):
         result = getResult(game)
         berserk = getBerserk(game)
         length = getLength(game)
-        appendOrCreate(game['players']['white']['user']['title'] + " " + game['players']['white']['user']['name'], {'time': game['lastMoveAt'], 'result': result['white'], 'berserk': berserk['white'], 'length': length})
-        appendOrCreate(game['players']['black']['user']['title'] + " " + game['players']['black']['user']['name'], {'time': game['lastMoveAt'], 'result': result['black'], 'berserk': berserk['black'], 'length': length})
+        appendOrCreate(game['players']['white']['user'].get('title',"") + " " + game['players']['white']['user']['name'], {'time': game['lastMoveAt'], 'result': result['white'], 'berserk': berserk['white'], 'length': length})
+        appendOrCreate(game['players']['black']['user'].get('title',"") + " " + game['players']['black']['user']['name'], {'time': game['lastMoveAt'], 'result': result['black'], 'berserk': berserk['black'], 'length': length})
 
     graphdata = {}
 
