@@ -18,8 +18,12 @@ def apicall(tournamentcode, calltype):
             with open('token', 'r') as f:
                 tokendata = f.read()[:-2]
             headers['Authorization'] = f'Bearer {tokendata}'
-        r = requests.get(f'https://lichess.org/api/tournament/{tournamentcode}/{calltype}', headers=headers)
-        output = r.text.split('\n')[:-1]
+        if calltype != 'info':
+            r = requests.get(f'https://lichess.org/api/tournament/{tournamentcode}/{calltype}', headers=headers)
+            output = r.text.split('\n')[:-1]
+        else:
+            r = requests.get(f'https://lichess.org/api/tournament/{tournamentcode}', headers=headers)
+            output = r.json()
         with open(tournpath, 'w') as f:
             json.dump(output, f)
         return output
@@ -28,15 +32,16 @@ def getTournamentData(tournamentcode):
     return apicall(tournamentcode, 'games')
 
 def getTournamentInfo(tournamentcode):
-    r = requests.get(f'https://lichess.org/api/tournament/{tournamentcode}').json()
+    r = apicall(tournamentcode, 'info')
     start = int(time.mktime(time.strptime(r['startsAt'], '%Y-%m-%dT%H:%M:%S.000Z')))*1000
     duration = r['minutes']
     end = start + (duration * 60 * 1000)
     if r.get('teamStanding'):
         leaders = len(r['teamStanding'][0]['players'])
+        teams = r['teamBattle']['teams']
     else:
-        leaders = None
-    return start, end, leaders
+        leaders = teams = None
+    return start, end, leaders, teams
 
 def getTeamData(tournamentcode):
     return apicall(tournamentcode, 'results')

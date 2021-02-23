@@ -11,7 +11,7 @@ import matplotlib.ticker as ticker
 import matplotlib.animation as animation
 
 
-def graphDataFormat(graphdata, starttime, endtime, tournamentcode, teamdata, leaders):
+def graphDataFormat(graphdata, starttime, endtime, tournamentcode, teamdata, leaders, teams):
     resolution = 10000 #every 10 seconds
 
     timepoints = range(starttime, endtime + 1, resolution)
@@ -49,7 +49,7 @@ def graphDataFormat(graphdata, starttime, endtime, tournamentcode, teamdata, lea
         for player in teamdata:
             player = json.loads(player)
             title = player.get('title')
-            teamdict[title + " " + player['username'] if title else player['username']] = player['team']
+            teamdict[title + " " + player['username'] if title else player['username']] = teams[player['team']]
         data = data.reset_index()
         data.insert(loc=1, column='team', value=data['player'].map(teamdict))
         data = data.drop(columns=['player'])
