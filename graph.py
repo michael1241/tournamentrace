@@ -11,10 +11,10 @@ import matplotlib.ticker as ticker
 import matplotlib.animation as animation
 
 
-def graphDataFormat(graphdata, starttime, endtime, tournamentcode, teamdata):
+def graphDataFormat(graphdata, starttime, endtime, tournamentcode, teamdata, leaders):
     resolution = 10000 #every 10 seconds
 
-    timepoints = range(starttime, endtime, resolution)
+    timepoints = range(starttime, endtime + 1, resolution)
 
     players = {p: [[starttime, 0]] for p in graphdata.keys()}
 
@@ -52,6 +52,16 @@ def graphDataFormat(graphdata, starttime, endtime, tournamentcode, teamdata):
             teamdict[title + " " + player['username'] if title else player['username']] = player['team']
         data = data.reset_index()
         data.insert(loc=1, column='team', value=data['player'].map(teamdict))
+        data = data.drop(columns=['player'])
+        data = data.set_index('team')
+        teamdata = data.iteritems()
+        cols = []
+        for col in teamdata:
+            col = pd.Series(col[1])
+            col = col.groupby('team').apply(lambda grp: grp.nlargest(leaders).sum())
+            cols.append(col)
+        data = pd.concat(cols, axis=1, keys=[s.name for s in cols])
+        data = data.reset_index()
 
     data.to_csv(f'{tournamentcode}_output.csv', index=False)
 
