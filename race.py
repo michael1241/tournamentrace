@@ -3,7 +3,7 @@
 import json
 import os
 import requests
-from datetime import datetime
+from datetime import datetime, timezone
 import time
 
 def apicall(tournamentcode, calltype):
@@ -33,7 +33,7 @@ def getTournamentData(tournamentcode):
 
 def getTournamentInfo(tournamentcode):
     r = apicall(tournamentcode, 'info')
-    start = int(time.mktime(time.strptime(r['startsAt'], '%Y-%m-%dT%H:%M:%S.000Z')))*1000
+    start = int(datetime.strptime(r['startsAt'], '%Y-%m-%dT%H:%M:%S.000Z').replace(tzinfo=timezone.utc).timestamp())*1000
     duration = r['minutes']
     end = start + (duration * 60 * 1000)
     if r.get('teamStanding'):
