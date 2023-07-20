@@ -22,4 +22,6 @@ graphdata = race.generateRaceData(gamelist)
 
 
 #generate csv output in flourish format
-graph.graphDataFormat(graphdata, starttime, endtime, tournamentcode, teamdata, leaders, teams)
+filename = graph.graphDataFormat(graphdata, starttime, endtime, tournamentcode, teamdata, leaders, teams)
+
+print(f"Data saved to {filename}")

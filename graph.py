@@ -63,5 +63,8 @@ def graphDataFormat(graphdata, starttime, endtime, tournamentcode, teamdata, lea
         data = pd.concat(cols, axis=1, keys=[s.name for s in cols])
         data = data.reset_index()
 
-    data.to_csv(f'{tournamentcode}_output.csv', index=False)
+    filename = f'{tournamentcode}_output.csv'
+    data.to_csv(filename, index=True)
+
+    return filename
 
