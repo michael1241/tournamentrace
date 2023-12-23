@@ -4,7 +4,7 @@ import race
 import graph
 
 tournamentcode = input("Tournament code:")
-removed_players = input("Removed players (lowercase):").split()
+only_these_players = input("Players to include (lowercase):").split()
 
 #get tournament data from lichess
 gamelist = race.getTournamentData(tournamentcode)
@@ -15,7 +15,7 @@ if leaders:
     teamdata = race.getTeamData(tournamentcode)
 
 #reverse results of removed players
-gamelist = race.fixResults(gamelist, removed_players)
+gamelist = race.fixResults(gamelist, only_these_players)
 
 #calculate data points for graphing
 graphdata = race.generateRaceData(gamelist)

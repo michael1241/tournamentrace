@@ -19,10 +19,14 @@ def apicall(tournamentcode, calltype):
                 tokendata = f.read()[:-2]
             headers['Authorization'] = f'Bearer {tokendata}'
         if calltype != 'info':
+            print("Downloading tournament ", calltype, "...")
             r = requests.get(f'https://lichess.org/api/tournament/{tournamentcode}/{calltype}', headers=headers)
+            print("Download complete.")
             output = r.text.split('\n')[:-1]
         else:
+            print("Downloading tournament...")
             r = requests.get(f'https://lichess.org/api/tournament/{tournamentcode}', headers=headers)
+            print("Download complete.")
             output = r.json()
         with open(tournpath, 'w') as f:
             json.dump(output, f)
@@ -46,15 +50,13 @@ def getTournamentInfo(tournamentcode):
 def getTeamData(tournamentcode):
     return apicall(tournamentcode, 'results')
 
-def fixResults(gamelist, removed_players):
+def fixResults(gamelist, only_these_players):
     newgamelist = []
     for g in gamelist:
         game = json.loads(g)
-        if game['players']['white']['user']['id'] in removed_players:
-            game['winner'] = 'black'
-        elif game['players']['black']['user']['id'] in removed_players:
-            game['winner'] = 'white'
-        newgamelist.append(game)
+        if len(only_these_players) == 0 or game['players']['white']['user']['id'] in only_these_players or game['players']['black']['user']['id'] in only_these_players:
+            newgamelist.append(game)
+            print(f"Game count: {len(newgamelist)}", end='\r')
     return newgamelist
 
 #start with JSON

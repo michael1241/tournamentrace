@@ -17,3 +17,10 @@ Create a bar chart race visualization for a Lichess tournament.
     ```
 
 1. Upload to [Flourish](https://flourish.studio/) (free account is ok), using the "Bar chart race" template.
+
+    Settings:
+        - Colors: by bar
+        - Labels: max size = .7, space = 8
+        - Counter & totalizer: disable both
+        - Timeline & animation: pause before loop = 10
+        - Header: title = "..."
